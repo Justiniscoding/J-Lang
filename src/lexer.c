@@ -13,6 +13,10 @@ Token lexerTokens[tokenAmount] = {
         IDENTIFIER,
         "[a-zA-Z][a-zA-Z0-9]*"
     },
+    {
+        ARROW,
+        "->"
+    },
 	{
 		GREATER_THAN,
 		">"
@@ -24,10 +28,6 @@ Token lexerTokens[tokenAmount] = {
     {
         NUMBER,
         "[0-9]*"
-    },
-    {
-        ARROW,
-        "->"
     },
     {
         SEMICOLON,
@@ -43,7 +43,7 @@ Token lexerTokens[tokenAmount] = {
     },
     {
         MINUS,
-        "-"
+        "[-]"
     },
     {
         EQUALS,
@@ -85,9 +85,7 @@ TokenList lex(char* code){
             for(int j = 0; j < tokenAmount; j++){
                 Token token = lexerTokens[j];
                 char* codeSnippet = malloc((startPos+i) * sizeof(char));
-                // free(codeSnippet);
                 strcpy(codeSnippet,slice(code,startPos,startPos+i));
-                // codeSnippet = slice(code,startPos,startPos+i);
                 if(strcmp(codeSnippet,"") == 0){
                     break;
                 }
@@ -105,12 +103,29 @@ TokenList lex(char* code){
                             strcpy(codeSnippet,slice(code,startPos,startPos+tempi));
                             result = regexTest(token.value,codeSnippet);
                             if(result == -1){
+
                                 strcpy(codeSnippet,slice(codeSnippet,0,-2));
                                 i=tempi-1;
                                 break;
                             }
                         }
                     }
+					if(token.type == MINUS){
+						int arrowIndex = 0;
+						for(int k = 0; k < tokenAmount; k++){
+							if(lexerTokens[k].type == ARROW){
+								arrowIndex = k;
+							}
+						}
+						codeSnippet = realloc(codeSnippet,sizeof(char)*(i+1));
+						strcpy(codeSnippet,slice(code,startPos,startPos+i+1));
+						if(regexTest("->",codeSnippet) == 1){
+							token = lexerTokens[arrowIndex];
+						}else{
+							codeSnippet = realloc(codeSnippet,sizeof(char)*(i));
+							strcpy(codeSnippet,slice(code,startPos,startPos+i));
+						}
+					}
                     int tempi = i;
                     char* oldSnippet = codeSnippet;
                     codeSnippet = realloc(codeSnippet, ((tempi+1) * sizeof(char)));
