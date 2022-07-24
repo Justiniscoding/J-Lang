@@ -2,6 +2,13 @@ COMPILER = gcc
 FLAGS = -o
 NAME = j
 MAIN = ./src/main.c
+
+test:
+	clear
+	make clean
+	make compile
+	./j tests/test1.j
+
 compile: $(MAIN)
 	$(COMPILER) $(FLAGS) $(NAME) $(MAIN) $(filter-out ./src/main.c,$(wildcard ./src/*.c))
 
@@ -13,11 +20,6 @@ clean:
 	rm -f j
 	rm -rf j.dSYM
 
-test:
-	clear
-	make clean
-	make compile
-	./j tests/test1.j
 
 time: 
 	make compile

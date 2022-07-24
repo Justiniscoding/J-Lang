@@ -13,6 +13,14 @@ Token lexerTokens[tokenAmount] = {
         IDENTIFIER,
         "[a-zA-Z][a-zA-Z0-9]*"
     },
+	{
+		GREATER_THAN,
+		">"
+	},
+	{
+		SMALLER_THAN,
+		"<"
+	},
     {
         NUMBER,
         "[0-9]*"

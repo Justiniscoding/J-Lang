@@ -18,6 +18,8 @@ enum _TokenType{
     PLUS,
     MINUS,
     EQUALS,
+	GREATER_THAN,
+	SMALLER_THAN,
     TOKEN_AMOUNT
 };
 typedef enum _TokenType TokenType;
