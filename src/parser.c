@@ -18,10 +18,10 @@ void parse(TokenList tokenList){
             currentLine = AddToTokenList(currentLine,tokenList.tokens[j]);
         }
         Token* tokens = currentLine.tokens;
-
-        if(tokens[0].type == IDENTIFIER && tokens[1].type == ARROW && tokens[2].type == STRING && tokens[3].type == SEMICOLON){
-            printf("%s\n",tokens[2].value);
-        }
+		for(int k = 0; k < currentLine.index; k++){
+			printf("%s\n",tokens[k].value);
+			printf("%d\n",tokens[k].type);
+		}
         free(currentLine.tokens);
     }
 
