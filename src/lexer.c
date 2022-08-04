@@ -1,5 +1,8 @@
 #include "lexer.h"
 const int tokenAmount = TOKEN_AMOUNT;
+
+// Tokens & regex for lexer
+
 Token lexerTokens[tokenAmount] = {
     {
         RIGHTPARAM,
@@ -38,12 +41,8 @@ Token lexerTokens[tokenAmount] = {
         "[,]"
     },
     {
-        PLUS,
-        "+"
-    },
-    {
-        MINUS,
-        "[-]"
+        ARTHIMETIC,
+        "[+-x/]"
     },
     {
         EQUALS,
@@ -83,6 +82,8 @@ TokenList lex(char* code){
                 break;
             }
             for(int j = 0; j < tokenAmount; j++){
+				// Get the token in the list from index j, and check if the current snippet of source code selected by the two loops matches the equivalent regex for the token
+
                 Token token = lexerTokens[j];
                 char* codeSnippet = malloc((startPos+i) * sizeof(char));
                 strcpy(codeSnippet,slice(code,startPos,startPos+i));
@@ -90,10 +91,21 @@ TokenList lex(char* code){
                     break;
                 }
                 int result = regexTest(token.value,codeSnippet);
+
+				// Run if the regex does match the token
+
                 if(result == 1){
+
                     if(token.type == NEWLINE){
                         line++;
                     }
+
+					// If the token is an identifier, check if including the next letter in the snippet keeps it an identifier. For example, if
+					// the source code fed into the lexer is "abc123" and it recognizes that "a" is an identifier, it will keep trying to go
+					// through the code and get "abc" as the new identifier and stop at "1" because an identifier consitst of letters a-z.
+					//
+					// TLDR: Expand the identifier string as long as possible
+
                     if(token.type == IDENTIFIER){
                         int tempi = i;
                         codeSnippet = realloc(codeSnippet, ((tempi+1) * sizeof(char)));
@@ -110,7 +122,11 @@ TokenList lex(char* code){
                             }
                         }
                     }
-					if(token.type == MINUS){
+
+					// If the token is a dash/subtraction symbol("-"), check if the next character is a greater then arrow,
+					// meaning that the token should instead be classified as an arrow token.
+
+					if(token.type == ARTHIMETIC){
 						int arrowIndex = 0;
 						for(int k = 0; k < tokenAmount; k++){
 							if(lexerTokens[k].type == ARROW){
@@ -121,44 +137,24 @@ TokenList lex(char* code){
 						strcpy(codeSnippet,slice(code,startPos,startPos+i+1));
 						if(regexTest("->",codeSnippet) == 1){
 							token = lexerTokens[arrowIndex];
+							i++;
 						}else{
 							codeSnippet = realloc(codeSnippet,sizeof(char)*(i));
 							strcpy(codeSnippet,slice(code,startPos,startPos+i));
 						}
 					}
-                    int tempi = i;
-                    char* oldSnippet = codeSnippet;
-                    codeSnippet = realloc(codeSnippet, ((tempi+1) * sizeof(char)));
-                    bool looping = true;
-                    while(true){
-                        tempi++;
-                        if(tempi > codeLen){
-                            strcpy(codeSnippet,oldSnippet);
-                            break;
-                        }
-                        codeSnippet = realloc(codeSnippet,sizeof(char)*(tempi+2));
-                        codeSnippet = slice(code,startPos,startPos+tempi);
-                        result = regexTest(token.value,codeSnippet);
-                        if(result == -1){
-                            for(int tokenIndex = j-1; tokenIndex >= 0; tokenIndex--){
-                                result = regexTest(lexerTokens[tokenIndex].value,codeSnippet);
-                                if(result == 1){
-                                    i = tempi;
-                                    looping = false;
-                                }
-                            }
-                            if(looping){
-                                i = tempi-1;
-                                codeSnippet = slice(codeSnippet,0,-2);
-                            }
-                            break;
-                        }
-                    }
+
+
+					// Add the token to the list of tokens for the parser if it is not a whitespace token, because whitespace tokens are
+					// (currently) unnessacary for the parser.
+
                     if(token.type != WHITESPACE){
                         token.value = codeSnippet;
                         token.line = line;
                         tokenList = AddToTokenList(tokenList,token);
                     }
+
+
                     startPos+=i+1;
                     exitLoop = true;
                     break;
