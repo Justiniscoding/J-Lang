@@ -41,7 +41,7 @@ Token lexerTokens[tokenAmount] = {
         "[,]"
     },
     {
-        ARTHIMETIC,
+        ARITHMETIC,
         "[+-x/]"
     },
     {
