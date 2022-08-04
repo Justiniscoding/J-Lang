@@ -126,7 +126,7 @@ TokenList lex(char* code){
 					// If the token is a dash/subtraction symbol("-"), check if the next character is a greater then arrow,
 					// meaning that the token should instead be classified as an arrow token.
 
-					if(token.type == ARTHIMETIC){
+					if(token.type == ARITHMETIC){
 						int arrowIndex = 0;
 						for(int k = 0; k < tokenAmount; k++){
 							if(lexerTokens[k].type == ARROW){
